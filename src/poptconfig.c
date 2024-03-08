@@ -110,6 +110,8 @@ static int poptGlob(UNUSED(poptContext con), const char * pattern,
 
 int poptSaneFile(const char * fn)
 {
+#if defined(FEOS) || defined(_WIN32) || (!defined(__GNUC__) && !defined(__clang__))
+#else
     struct stat sb;
 
     if (fn == NULL || strstr(fn, ".rpmnew") || strstr(fn, ".rpmsave"))
@@ -120,6 +122,7 @@ int poptSaneFile(const char * fn)
 	return 0;
     if (sb.st_mode & (S_IXUSR|S_IXGRP|S_IXOTH))
 	return 0;
+#endif
     return 1;
 }
 
@@ -434,6 +437,7 @@ int poptReadConfigFiles(poptContext con, const char * paths)
     return rc;
 }
 
+#if 0
 int poptReadDefaultConfig(poptContext con, UNUSED(int useEnv))
 {
     char * home;
@@ -481,6 +485,7 @@ int poptReadDefaultConfig(poptContext con, UNUSED(int useEnv))
 exit:
     return rc;
 }
+#endif
 
 poptContext
 poptFini(poptContext con)

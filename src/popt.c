@@ -10,11 +10,18 @@
 
 #include "system.h"
 
+#ifdef HAVE_FLOAT_H
 #include <float.h>
-#include <math.h>
+#endif
+
+//#include <math.h>
 #include <unistd.h>
 #include <limits.h>
 #include <errno.h>
+
+#ifdef FEOS
+#define X_OK 0
+#endif
 
 #include "poptint.h"
 
@@ -518,10 +525,13 @@ static int execCommand(poptContext con)
     if (rc) goto exit;
 #else
     /* refuse to exec if we cannot drop suid/sgid privileges */
+#if 0
     if (getuid() != geteuid() || getgid() != getegid()) {
 	errno = ENOTSUP;
 	goto exit;
     }
+#endif
+
 #endif
 #endif
 
@@ -535,7 +545,11 @@ if (_popt_debug)
     }
 #endif
 
+#ifndef FEOS
+//FeOS shouldn't need maybe
     rc = execvp(argv[0], (char *const *)argv);
+    rc; // -Wunused-but-set-variable
+#endif
 
     /* only reached on execvp() failure */
     con->execFail = xstrdup(argv[0]);
@@ -1159,6 +1173,7 @@ static int poptSaveArg(poptContext con, const struct poptOption * opt)
 	}
     }   break;
 
+#ifdef HAVE_FLOAT_H
     case POPT_ARG_FLOAT:
     case POPT_ARG_DOUBLE:
     {	char *end = NULL;
@@ -1193,6 +1208,8 @@ static int poptSaveArg(poptContext con, const struct poptOption * opt)
 	    break;
 	}
     }   break;
+#endif
+
     case POPT_ARG_MAINCALL:
 	con->maincall = opt->arg;
 	break;
@@ -1407,8 +1424,11 @@ int poptGetNextOpt(poptContext con)
 		    }
 		
 		    if (con->os->argv != NULL) {	/* XXX can't happen */
+            unsigned int type=poptArgType(opt);
 			if (F_ISSET(opt, OPTIONAL) &&
 			    con->os->argv[con->os->next][0] == '-') {
+			    con->os->nextArg = NULL;
+			} else if (F_ISSET(opt, OPTIONAL) && (type&(POPT_ARG_INT|POPT_ARG_LONG|POPT_ARG_SHORT|POPT_ARG_FLOAT|POPT_ARG_DOUBLE)) && (con->os->argv[con->os->next][0]<'0' || '9'<con->os->argv[con->os->next][0])) {
 			    con->os->nextArg = NULL;
 			} else {
 			    /* XXX watchout: subtle side-effects live here. */

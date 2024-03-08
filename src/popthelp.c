@@ -10,7 +10,10 @@
 
 #include "system.h"
 
+#if defined(__ANDROID__) || defined(FEOS) || defined(_WIN32) || (!defined(__GNUC__) && !defined(__clang__))
+#else
 #define        POPT_USE_TIOCGWINSZ
+#endif
 #ifdef POPT_USE_TIOCGWINSZ
 #include <sys/ioctl.h>
 #endif
@@ -234,6 +237,7 @@ singleOptionDefaultValue(size_t lineLength,
     case POPT_ARG_LONGLONG:
 	le += sprintf(le, "%lld", arg.longlongp[0]);
 	break;
+#ifdef HAVE_FLOAT_H
     case POPT_ARG_FLOAT:
     {	double aDouble = (double) arg.floatp[0];
 	le += sprintf(le, "%g", aDouble);
@@ -241,6 +245,7 @@ singleOptionDefaultValue(size_t lineLength,
     case POPT_ARG_DOUBLE:
 	le += sprintf(le, "%g", arg.doublep[0]);
 	break;
+#endif
     case POPT_ARG_MAINCALL:
 	le += sprintf(le, "%p", opt->arg);
 	break;

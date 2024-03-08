@@ -1,9 +1,55 @@
 /**
- * @file
+ * \file popt/system.h
  */
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
+//#ifdef HAVE_CONFIG_H
+//# ifndef _MSC_VER
+//#  include "config.h"
+//# else
+//#  include "config_msvc.h"
+//# endif /* _MSC_VER */
+//#endif /* HAVE_CONFIG_H */
+
+/*
+customize:
+- no iconv/gettext dependency
+- disabled POPT_fprintf() and poptReadDefaultConfig()
+- poptlookup3.c is separated
+*/
+
+#if defined(_MSC_VER) || defined(__MINGW32__)
+# define _CRT_SECURE_NO_WARNINGS 1
+#endif
+
+#define POPT_fprintf fprintf
+
+#define PACKAGE "popt"
+
+#if defined(__ANDROID__) || defined(FEOS) || defined(_WIN32) || (!defined(__GNUC__) && !defined(__clang__))
+#else
+#define HAVE_STPCPY
+#endif
+
+#define HAVE_STRERROR
+//#define HAVE_SRANDOM //Win32
+//#define HAVE_VASPRINTF
+
+#if defined(FEOS)
+#include <stdio.h> //SEEK_CUR
+#else
+#define HAVE_FLOAT_H
+#endif
+
+//access
+#include <unistd.h>
+
+#if defined (__GLIBC__) && defined(__LCLINT__)
+/*@-declundef@*/
+/*@unchecked@*/
+extern __const __int32_t *__ctype_tolower;
+/*@unchecked@*/
+extern __const __int32_t *__ctype_toupper;
+/*@=declundef@*/
 #endif
 
 #include <ctype.h>

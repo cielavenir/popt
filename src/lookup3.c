@@ -34,6 +34,7 @@
 */
 /* -------------------------------------------------------------------- */
 
+#include <stdio.h> //size_t
 #include <stdint.h>
 
 #if defined(_JLU3_SELFTEST)
@@ -43,10 +44,13 @@
 # define _JLU3_jlu32b		1
 #endif
 
+#define _JLU3_jlu32lpair        1
+#define	jlu32lpair	poptJlu32lpair
+
 static const union _dbswap {
     const uint32_t ui;
     const unsigned char uc[4];
-} endian = { .ui = 0x11223344 };
+} endian = { 0x11223344 };
 # define HASH_LITTLE_ENDIAN	(endian.uc[0] == (unsigned char) 0x44)
 # define HASH_BIG_ENDIAN	(endian.uc[0] == (unsigned char) 0x11)
 
